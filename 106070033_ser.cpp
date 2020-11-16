@@ -71,6 +71,7 @@ int main(){
     char recvbuf[1024];
     int recvbuflen = 1024;
     char database[10000];
+    memset (database,NULL,sizeof(database));
     int d_length = 0;
     // Send an initial buffer
     // Receive until the peer closes the connection
