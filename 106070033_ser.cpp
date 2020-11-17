@@ -68,41 +68,46 @@ int main(){
     } else
         wprintf(L"Client connected.\n");
     //receive()
+    char Menu[] = "-- Menu --\n1.Read all existing message\n2.Write a new message\nplease type '1' or '2' to select the option:\n";
+    char option_1[] = "ALL MESSAGE :\n";
+    char option_2[] = "Type your new Message here :\n";
     char recvbuf[1024];
     int recvbuflen = 1024;
     char database[10000];
     memset (database,NULL,sizeof(database));
     int d_length = 0;
+    char empty = NULL;
     // Send an initial buffer
     // Receive until the peer closes the connection
+    iResult = send(Client, Menu, strlen(Menu), 0);
     do {
         // iResult = shutdown(Client, SD_SEND);
         iResult = recv(Client, recvbuf, recvbuflen, 0);
         if ( iResult > 0 ){
             printf("Bytes received: %d\n", iResult);
             if(recvbuf[0] == '1'){
-                // std::cout << "READ Mode!" << std::endl;
-                iResult = send(Client, database, strlen(database), 0);
+                if(d_length == 0){
+                    empty = '1';//empty
+                    iResult = send(Client, &empty, 1, 0);
+                }
+                else{
+                    empty = '0';//not empty
+                    iResult = send(Client, &empty, 1, 0);
+                    iResult = send(Client, database, strlen(database), 0);
+                }
             }
             else if(recvbuf[0] == '2'){
-                // std::cout << "Write Mode!" << std::endl;
                 strncpy(&database[d_length], &recvbuf[1], recvbuflen-1);
                 d_length = strlen(database);
                 database[d_length]='\n';
                 d_length = strlen(database);
-                // std::cout << strlen(database) << std::endl;
-                // std::cout << d_length << std::endl;
-                // std::cout << database << std::endl;
             }
-            // std::cout << recvbuf << std::endl;
         }
         else if ( iResult <0)
             printf("recv failed: %d\n", WSAGetLastError());
 
         memset (recvbuf,NULL,sizeof(recvbuf));
-        // recvbuflen = 0;
-        // recvbuflen = 0;
-        // std::cout << "RECV :"<<Client << std::endl;
+        iResult = send(Client, Menu, strlen(Menu), 0);
     } while( iResult > 0 );
 
     //close()
